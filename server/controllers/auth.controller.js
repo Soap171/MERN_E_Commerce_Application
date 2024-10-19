@@ -75,7 +75,7 @@ export const signup = async (req, res, next) => {
       email,
       password,
       verificationToken: token,
-      verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 15 minutes
+      verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 01 day
     });
 
     const { accessToken, refreshToken } = generateTokens(user._id);
