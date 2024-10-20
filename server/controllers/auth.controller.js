@@ -127,8 +127,34 @@ export const verifyEmail = async (req, res, next) => {
     next(errorHandler(500, "Internal server error"));
   }
 };
-export const login = async (req, res) => {};
-export const logout = async (req, res) => {
+export const login = async (req, res, next) => {
+  const { email, password } = req.body;
+  if (!email || !password)
+    return next(errorHandler(400, "All fields are required"));
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user || (await user.comparePassword(password)) === false)
+      return next(errorHandler(400, "Invalid email or password"));
+
+    const { refreshToken, accessToken } = generateTokens(user._id);
+    await storeRefreshToken(user._id, refreshToken, next);
+    setCookies(res, accessToken, refreshToken, next);
+
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isVerified: user.isVerified,
+    });
+  } catch (error) {
+    console.log(error);
+    next(errorHandler(500, "Internal server error"));
+  }
+};
+export const logout = async (req, res, next) => {
   try {
     const refreshToken = req.cookies.refreshToken;
     if (refreshToken) {
