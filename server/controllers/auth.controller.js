@@ -170,6 +170,43 @@ export const logout = async (req, res, next) => {
     next(errorHandler(500, "Internal server error"));
   }
 };
+
+export const refreshToken = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) return next(errorHandler(401, "No Token Provided"));
+
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    const storedRefreshToken = await redis.get(
+      `refresh_token:${decoded.user_id}`
+    );
+
+    if (refreshToken !== storedRefreshToken)
+      return next(errorHandler(401, "Invalid Token"));
+
+    const accessToken = jwt.sign(
+      { user_id: decoded.user_id },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: "15m",
+      }
+    );
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.json({ message: "Token refreshed successfully" });
+  } catch (error) {
+    console.log(error);
+    next(errorHandler(500, "Internal server error"));
+  }
+};
+
 export const forgotPassword = async (req, res) => {};
 export const resetPassword = async (req, res) => {};
 export const google = async (req, res) => {};
