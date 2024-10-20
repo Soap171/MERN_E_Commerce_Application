@@ -4,9 +4,14 @@ import jwt from "jsonwebtoken";
 import { errorHandler } from "../utils/errorHandler.js";
 import { redis } from "../lib/redis.js";
 import {
+  sendResetPasswordEmail,
+  sendResetPasswordSuccessEmail,
   sendVerificationEmail,
   sendWelcomeEmail,
 } from "../mailtrap/mailtrapEmail.js";
+import dotenv from "dotenv";
+import crypto from "crypto";
+dotenv.config();
 
 // create token for verify email
 const createVerifyToken = () => {
@@ -207,6 +212,53 @@ export const refreshToken = async (req, res, next) => {
   }
 };
 
-export const forgotPassword = async (req, res) => {};
-export const resetPassword = async (req, res) => {};
+export const forgotPassword = async (req, res, next) => {
+  const { email } = req.body;
+  if (!email) return next(errorHandler(400, "Email is required"));
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return next(errorHandler(400, "User not found"));
+
+    const resetToken = crypto.randomBytes(20).toString("hex");
+
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpiresAt = Date.now() + 1 * 60 * 60 * 1000; // 01 hour
+    await user.save();
+    await sendResetPasswordEmail(
+      user.email,
+      `${process.env.CLIENT_URL}/reset-password/${resetToken}`,
+      next
+    );
+    res.status(200).json({ message: "Reset password email sent" });
+  } catch (error) {
+    console.log(error);
+    next(errorHandler(500, "Internal server error"));
+  }
+};
+export const resetPassword = async (req, res, next) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  try {
+    if (!token) return next(errorHandler(400, "Token is required"));
+    if (!password) return next(errorHandler(400, "Password is required"));
+
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpiresAt: { $gt: Date.now() },
+    });
+
+    if (!user) return next(errorHandler(400, "Invalid or expired token"));
+
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpiresAt = undefined;
+    await user.save();
+    await sendResetPasswordSuccessEmail(user.email, next);
+    res.status(200).json({ message: "Password reset successfully" });
+  } catch (error) {
+    console.log(error);
+    next(errorHandler(500, "Internal server error"));
+  }
+};
 export const google = async (req, res) => {};
