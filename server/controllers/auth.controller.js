@@ -128,7 +128,22 @@ export const verifyEmail = async (req, res, next) => {
   }
 };
 export const login = async (req, res) => {};
-export const logout = async (req, res) => {};
+export const logout = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (refreshToken) {
+      const decode = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+      await redis.del(`refresh_token:${decode.user_id}`);
+    }
+
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+    res.status(200).json({ message: "Logout successfully" });
+  } catch (error) {
+    console.log(error);
+    next(errorHandler(500, "Internal server error"));
+  }
+};
 export const forgotPassword = async (req, res) => {};
 export const resetPassword = async (req, res) => {};
 export const google = async (req, res) => {};
