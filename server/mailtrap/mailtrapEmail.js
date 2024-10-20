@@ -19,3 +19,23 @@ export const sendVerificationEmail = async (email, token, next) => {
     next(errorHandler(500, "Internal server error"));
   }
 };
+
+export const sendWelcomeEmail = async (email, name, next) => {
+  const recipient = [{ email }];
+  try {
+    const response = await mailtrapClient.send({
+      from: sender,
+      to: recipient,
+      template_uuid: process.env.MAILTRAP_WELCOME_EMAIL_UUID,
+      template_variables: {
+        name: name,
+        company_info_name: "UpTrend",
+      },
+    });
+
+    console.log(response);
+  } catch (error) {
+    console.log(error);
+    next(errorHandler(500, "Internal server error"));
+  }
+};

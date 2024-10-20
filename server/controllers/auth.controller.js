@@ -3,7 +3,10 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { errorHandler } from "../utils/errorHandler.js";
 import { redis } from "../lib/redis.js";
-import { sendVerificationEmail } from "../mailtrap/mailtrapEmail.js";
+import {
+  sendVerificationEmail,
+  sendWelcomeEmail,
+} from "../mailtrap/mailtrapEmail.js";
 
 // create token for verify email
 const createVerifyToken = () => {
@@ -87,6 +90,37 @@ export const signup = async (req, res, next) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      isVerified: user.isVerified,
+    });
+  } catch (error) {
+    console.log(error);
+    next(errorHandler(500, "Internal server error"));
+  }
+};
+export const verifyEmail = async (req, res, next) => {
+  const { code } = req.body;
+  if (!code) return next(errorHandler(400, "Code is required"));
+
+  try {
+    const user = await User.findOne({
+      verificationToken: code,
+      verificationTokenExpiresAt: { $gt: Date.now() },
+    });
+
+    if (!user) return next(errorHandler(400, "Invalid or expired code"));
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpiresAt = undefined;
+    await user.save();
+    await sendWelcomeEmail(user.email, user.name, next);
+
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isVerified: user.isVerified,
     });
   } catch (error) {
     console.log(error);
@@ -95,7 +129,6 @@ export const signup = async (req, res, next) => {
 };
 export const login = async (req, res) => {};
 export const logout = async (req, res) => {};
-export const verifyEmail = async (req, res) => {};
 export const forgotPassword = async (req, res) => {};
 export const resetPassword = async (req, res) => {};
 export const google = async (req, res) => {};
