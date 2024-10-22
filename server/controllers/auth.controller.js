@@ -262,3 +262,6 @@ export const resetPassword = async (req, res, next) => {
   }
 };
 export const google = async (req, res) => {};
+
+// profile
+export const getProfile = async (req, res, next) => {};
