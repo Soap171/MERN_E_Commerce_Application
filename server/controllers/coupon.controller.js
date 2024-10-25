@@ -5,7 +5,7 @@ export const getCoupon = async (req, res, next) => {
   try {
     const coupoon = await Coupon.find({ userId: req.user._id, isActive: true });
     if (!coupoon) {
-      return res.status(404).json({ message: "Coupon not found" });
+      return next(errorHandler(404, "Coupon not found"));
     }
 
     res.status(200).json(coupoon);
@@ -20,7 +20,7 @@ export const validateCoupon = async (req, res, next) => {
     const { code } = req.body;
 
     if (!code) {
-      return res.status(400).json({ message: "Coupon code is required" });
+      return next(errorHandler(400, "Coupon code is required"));
     }
 
     const coupon = await Coupon.findOne({
@@ -30,13 +30,13 @@ export const validateCoupon = async (req, res, next) => {
     });
 
     if (!coupon) {
-      return res.status(404).json({ message: "Coupon not found" });
+      return next(errorHandler(404, "Coupon not found"));
     }
 
     if (coupon.expirationDate < new Date()) {
       coupon.isActive = false;
       await coupon.save();
-      return res.status(400).json({ message: "Coupon has expired" });
+      return next(errorHandler(400, "Coupon has expired"));
     }
 
     res.status(200).json({
