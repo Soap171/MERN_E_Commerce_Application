@@ -60,9 +60,9 @@ function Login() {
       >
         <div className="max-w-md w-full mx-auto border  border-gray-300 rounded-2xl p-8 bg-white shadow-lg">
           <div className="text-center mb-12">
-            <h5 className="text-blue-800 font-semibold">
+            <h1 className="text-blue-800 font-semibold text-2xl">
               Login To Your Account
-            </h5>
+            </h1>
           </div>
           <form>
             <div className="space-y-2">
