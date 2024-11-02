@@ -43,8 +43,13 @@ function Login() {
       return;
     }
 
-    if (formData.password.length < 6) {
-      toast.error("Password must be at least 6 characters long");
+    if (validation.email === false) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    if (validation.password === false) {
+      toast.error("Password should be atleast 6 characters long");
       return;
     }
 
@@ -60,7 +65,7 @@ function Login() {
       >
         <div className="max-w-md w-full mx-auto border  border-gray-300 rounded-2xl p-8 bg-white shadow-lg">
           <div className="text-center mb-12">
-            <h1 className="text-blue-800 font-semibold text-2xl">
+            <h1 className="text-gray-600 font-semibold text-2xl">
               Login To Your Account
             </h1>
           </div>
@@ -122,17 +127,41 @@ function Login() {
                 type="button"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="w-full py-3 px-4 text-sm tracking-wider font-semibold rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
+                className="w-full py-3 px-4 text-sm tracking-wider font-semibold rounded-md text-white bg-gradient-to-r from-slate-900 to-slate-700  focus:outline-none"
                 onClick={handleSubmit}
               >
                 Login
               </motion.button>
             </div>
+            <div className="text-center flex items-center justify-between">
+              <div class="flex items-center justify-between ">
+                <div class="flex h-5  my-4">
+                  <input
+                    id="remember"
+                    aria-describedby="remember"
+                    type="checkbox"
+                    class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 "
+                    required=""
+                  />
+                </div>
+                <div class="ml-2 text-sm">
+                  <label for="remember" class="text-gray-00">
+                    Remember me
+                  </label>
+                </div>
+              </div>
+              <Link
+                to="/forget-password"
+                className="text-red-400 text-sm  hover:underline   "
+              >
+                Forget Password ? {""}
+              </Link>
+            </div>
             <p className="text-gray-800 text-sm mt-6 text-center">
               Not a member ? {""}
               <Link
                 to="/sign-up"
-                className="text-blue-600 font-semibold hover:underline ml-1"
+                className="text-gray-600 font-semibold hover:underline ml-1"
               >
                 Register Now
               </Link>

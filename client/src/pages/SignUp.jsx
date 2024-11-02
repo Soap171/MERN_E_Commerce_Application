@@ -218,7 +218,7 @@ function SignUp() {
                   I accept the{" "}
                   <Link
                     to="/terms-and-conditions"
-                    className="text-blue-600 font-semibold hover:underline ml-1"
+                    className=" font-semibold hover:underline ml-1"
                   >
                     Terms and Conditions
                   </Link>
@@ -231,7 +231,7 @@ function SignUp() {
                 type="button"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="w-full py-3 px-4 text-sm tracking-wider font-semibold rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
+                className="w-full py-3 px-4 text-sm tracking-wider font-semibold rounded-md text-white bg-gradient-to-r from-slate-900 to-slate-700 focus:outline-none"
                 onClick={handleSubmit}
               >
                 Create an account
@@ -241,9 +241,9 @@ function SignUp() {
               Already have an account?{" "}
               <Link
                 to="/login"
-                className="text-blue-600 font-semibold hover:underline ml-1"
+                className="text-gray-800 font-semibold hover:underline ml-1"
               >
-                Login here
+                Login
               </Link>
             </p>
           </form>

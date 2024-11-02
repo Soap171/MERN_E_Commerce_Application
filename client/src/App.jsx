@@ -10,7 +10,7 @@ import toast, { Toaster } from "react-hot-toast";
 
 function App() {
   return (
-    <div className="bg-gradient-to-r from-blue-800 to-indigo-900 min-h-screen flex flex-col ">
+    <div className="bg-gradient-to-r from-slate-900 to-slate-700 min-h-screen flex flex-col ">
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />

@@ -81,7 +81,7 @@ function VerifyEmail() {
       >
         <div className="max-w-md w-full mx-auto border border-gray-300 rounded-2xl bg-white shadow-lg">
           <div className="text-center mb-2">
-            <h1 className="text-blue-500 font-semibold m-5 h-1 text-2xl">
+            <h1 className="text-gray-800 font-semibold m-5 h-1 text-2xl">
               Verify Your Email To Continue
             </h1>
           </div>
@@ -108,7 +108,7 @@ function VerifyEmail() {
                   type="submit"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  className="w-full py-3 px-4 text-sm tracking-wider font-semibold rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
+                  className="w-full py-3 px-4 text-sm tracking-wider font-semibold rounded-md text-white bg-gradient-to-r from-slate-900 to-slate-700 focus:outline-none"
                 >
                   Verify Email
                 </motion.button>
