@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
+import GoogleAuth from "../components/GoogleAuth";
+import logoImg from "../images/upTrend.png";
 
 function SignUp() {
   const [agree, setAgree] = useState(false);
@@ -89,15 +91,9 @@ function SignUp() {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.9 }}
       >
-        <div className="max-w-md w-full mx-auto border border-gray-300 rounded-2xl p-8 bg-white shadow-lg">
-          <div className="text-center mb-12">
-            <a href="javascript:void(0)">
-              <img
-                src="https://readymadeui.com/readymadeui.svg"
-                alt="logo"
-                className="w-40 inline-block"
-              />
-            </a>
+        <div className="max-w-md w-full mx-auto border border-gray-300 rounded-2xl p-6 bg-white shadow-lg">
+          <div className="text-center mb-4">
+            <img src={logoImg} alt="logo" className="w-40  mx-auto" />
           </div>
 
           <form>
@@ -236,6 +232,9 @@ function SignUp() {
               >
                 Create an account
               </motion.button>
+            </div>
+            <div className="mt-2">
+              <GoogleAuth />
             </div>
             <p className="text-gray-800 text-sm mt-6 text-center">
               Already have an account?{" "}

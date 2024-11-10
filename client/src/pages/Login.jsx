@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
+import GoogleAuth from "../components/GoogleAuth";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -65,7 +66,7 @@ function Login() {
       >
         <div className="max-w-md w-full mx-auto border  border-gray-300 rounded-2xl p-8 bg-white shadow-lg">
           <div className="text-center mb-12">
-            <h1 className="text-gray-600 font-semibold text-2xl">
+            <h1 className="text-gray-800  font-semibold text-2xl">
               Login To Your Account
             </h1>
           </div>
@@ -122,7 +123,7 @@ function Login() {
                 )}
               </div>
             </div>
-            <div className="mt-12">
+            <div className="mt-12 ">
               <motion.button
                 type="button"
                 whileHover={{ scale: 1.1 }}
@@ -132,6 +133,9 @@ function Login() {
               >
                 Login
               </motion.button>
+            </div>
+            <div className="mt-2">
+              <GoogleAuth />
             </div>
             <div className="text-center flex items-center justify-between">
               <div class="flex items-center justify-between ">
