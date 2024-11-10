@@ -2,10 +2,16 @@ import React from "react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useUserStore } from "../stores/useUserStore";
+import { useParams } from "react-router-dom";
+import { set } from "mongoose";
 
 function ResetPassword() {
   const [newPassword, setNewPassword] = useState({});
+  const navigate = useNavigate();
+  const { token } = useParams();
+  const { resetNewPassword, loading } = useUserStore();
   const [confirmPassword, setConfirmPassword] = useState({});
   const [validation, setValidation] = useState({
     nPassword: null,
@@ -46,7 +52,9 @@ function ResetPassword() {
       return;
     }
 
-    toast.success("Password reset successfully");
+    resetNewPassword(newPassword.nPassword, token, navigate);
+    setNewPassword({});
+    setConfirmPassword({});
   };
 
   return (
@@ -118,7 +126,7 @@ function ResetPassword() {
               whileTap={{ scale: 0.9 }}
               onClick={handleSubmit}
             >
-              Reset Password
+              {loading ? "Resetting..." : "Reset Password"}
             </motion.button>
           </div>
         </div>

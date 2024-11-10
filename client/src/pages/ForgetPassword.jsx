@@ -3,9 +3,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
+import { useUserStore } from "../stores/useUserStore";
 
 function ForgetPassword() {
   const [email, setEmail] = useState("");
+  const { forgetPassword, loading } = useUserStore();
 
   const [validation, setValidation] = useState({
     email: null,
@@ -31,9 +33,9 @@ function ForgetPassword() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     if (email === "") {
-      toast.error("Please fill all the fields to login");
+      toast.error("Please enter your email");
       return;
     }
 
@@ -42,7 +44,7 @@ function ForgetPassword() {
       return;
     }
 
-    toast.success("Email sent successfully");
+    await forgetPassword(email);
   };
 
   return (
@@ -96,7 +98,7 @@ function ForgetPassword() {
               className="w-full py-3 px-4 text-sm tracking-wider font-semibold rounded-md text-white bg-gradient-to-r from-slate-900 to-slate-700  focus:outline-none"
               onClick={handleSubmit}
             >
-              Send Password Reset Email
+              {loading ? "Sending..." : "Send Reset Password Email"}
             </motion.button>
           </div>
         </div>

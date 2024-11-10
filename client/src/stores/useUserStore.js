@@ -44,4 +44,37 @@ export const useUserStore = create((set, get) => ({
       console.log(error.response);
     }
   },
+
+  forgetPassword: async (email) => {
+    set({ loading: true });
+    try {
+      const res = await axiosInstance.post("/auth/forgot-password", { email });
+      set({ loading: false });
+      console.log(res.data.message);
+      toast.success(res.data.message);
+    } catch (error) {
+      set({ loading: false });
+      toast.error(error.response.data.message);
+      console.log(error.response);
+    }
+  },
+
+  resetNewPassword: async (password, token, navigate) => {
+    set({ loading: true });
+    try {
+      const res = await axiosInstance.post(`/auth/reset-password/${token}`, {
+        password,
+      });
+      set({ loading: false });
+      console.log(res.data.message);
+      toast.success(res.data.message);
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+    } catch (error) {
+      set({ loading: false });
+      console.log(error.response);
+      toast.error(error.response.data.message);
+    }
+  },
 }));
