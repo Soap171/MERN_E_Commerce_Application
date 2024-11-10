@@ -6,6 +6,8 @@ import VerifyEmail from "./pages/VerifyEmail";
 import ForgetPassword from "./pages/ForgetPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Terms from "./pages/Terms";
+import Contact from "./pages/Contact";
+import About from "./pages/About";
 import toast, { Toaster } from "react-hot-toast";
 
 function App() {
@@ -20,6 +22,8 @@ function App() {
           <Route path="/forget-password" element={<ForgetPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/terms-and-conditions" element={<Terms />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/about" element={<About />} />
         </Routes>
       </BrowserRouter>
       <Toaster />

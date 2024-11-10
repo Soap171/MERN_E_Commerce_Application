@@ -51,9 +51,8 @@ function Navbar() {
   const navItems = [
     { label: "Home", href: "/" },
     { label: "Best Sellers", href: "/best-sellers" },
-    { label: "Gift Ideas", href: "/gifts" },
-    { label: "Today's Deals", href: "/deals" },
-    { label: "Sell", href: "/sell" },
+    { label: "About", href: "/about" },
+    { label: "Contact", href: "/contact" },
   ];
 
   const handleNavigate = (path) => {

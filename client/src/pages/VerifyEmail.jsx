@@ -1,12 +1,14 @@
-import React from "react";
-import { useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useRef } from "react";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
+import { useUserStore } from "../stores/useUserStore";
+import { useNavigate } from "react-router-dom";
 
 function VerifyEmail() {
-  const [otp, setOtp] = useState(Array(4).fill("")); // Array with 6 empty strings
+  const [otp, setOtp] = useState(Array(6).fill("")); // Array with 6 empty strings
   const inputRefs = useRef([]); // Array of refs for each input field
+  const { verifyEmail, loading } = useUserStore();
+  const navigate = useNavigate();
 
   const handleKeyDown = (e) => {
     if (
@@ -54,21 +56,20 @@ function VerifyEmail() {
   const handlePaste = (e) => {
     e.preventDefault();
     const text = e.clipboardData.getData("text");
-    if (!new RegExp(`^[0-9]{${otp.length}}$`).test(text)) {
-      return;
-    }
+    if (!/^\d{6}$/.test(text)) return; // Ensure only 6-digit input is allowed
+
     const digits = text.split("");
     setOtp(digits);
+    inputRefs.current[5]?.focus(); // Focus on the last input
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (otp.includes("")) {
       toast.error("Please enter the verification code");
       return;
     }
-    // Add your form submission logic here
-    toast.success("Verification code submitted");
+    verifyEmail(otp.join(""), navigate);
   };
 
   return (
@@ -110,7 +111,7 @@ function VerifyEmail() {
                   whileTap={{ scale: 0.9 }}
                   className="w-full py-3 px-4 text-sm tracking-wider font-semibold rounded-md text-white bg-gradient-to-r from-slate-900 to-slate-700 focus:outline-none"
                 >
-                  Verify Email
+                  {loading ? "Verifying..." : "Verify"}
                 </motion.button>
               </div>
             </div>

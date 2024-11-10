@@ -4,9 +4,12 @@ import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import GoogleAuth from "../components/GoogleAuth";
 import logoImg from "../images/upTrend.png";
+import { useUserStore } from "../stores/useUserStore";
+import { useNavigate } from "react-router-dom";
 
 function SignUp() {
   const [agree, setAgree] = useState(false);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     name: "",
@@ -19,12 +22,13 @@ function SignUp() {
     password: null,
     cpassword: null,
   });
+  const { signup, loading } = useUserStore();
 
   const handleAgree = () => {
     setAgree(!agree);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     if (agree === false) {
       toast.error("Please agree to the terms and conditions");
       return;
@@ -49,8 +53,7 @@ function SignUp() {
       return;
     }
 
-    console.log(formData);
-    toast.success("Account created successfully");
+    signup(formData.name, formData.email, formData.password, navigate);
   };
 
   const validateEmail = (email) => {
@@ -229,8 +232,9 @@ function SignUp() {
                 whileTap={{ scale: 0.9 }}
                 className="w-full py-3 px-4 text-sm tracking-wider font-semibold rounded-md text-white bg-gradient-to-r from-slate-900 to-slate-700 focus:outline-none"
                 onClick={handleSubmit}
+                disabled={loading}
               >
-                Create an account
+                {loading ? "Loading..." : "Create Account"}
               </motion.button>
             </div>
             <div className="mt-2">
