@@ -77,4 +77,21 @@ export const useUserStore = create((set, get) => ({
       toast.error(error.response.data.message);
     }
   },
+
+  login: async (email, password, navigate) => {
+    set({ loading: true });
+    try {
+      const res = await axiosInstance.post("/auth/login", { email, password });
+      set({ user: res.data, loading: false });
+      console.log(res.data);
+      toast.success("Login successful");
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
+    } catch (error) {
+      set({ loading: false });
+      console.log(error.response);
+      toast.error(error.response.data.message);
+    }
+  },
 }));

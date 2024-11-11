@@ -3,12 +3,17 @@ import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import GoogleAuth from "../components/GoogleAuth";
+import { useUserStore } from "../stores/useUserStore";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const navigate = useNavigate();
+
+  const { login, loading } = useUserStore();
 
   const [validation, setValidation] = useState({
     email: null,
@@ -54,7 +59,7 @@ function Login() {
       return;
     }
 
-    toast.success("Welcome");
+    login(formData.email, formData.password, navigate);
   };
   return (
     <div className="flex flex-col justify-center items-center min-h-screen p-4">
@@ -131,7 +136,7 @@ function Login() {
                 className="w-full py-3 px-4 text-sm tracking-wider font-semibold rounded-md text-white bg-gradient-to-r from-slate-900 to-slate-700  focus:outline-none"
                 onClick={handleSubmit}
               >
-                Login
+                {loading ? "Logging..." : "Login"}
               </motion.button>
             </div>
             <div className="mt-2">
