@@ -161,6 +161,7 @@ export const login = async (req, res, next) => {
 };
 export const logout = async (req, res, next) => {
   try {
+    console.log("inside logout");
     const refreshToken = req.cookies.refreshToken;
     if (refreshToken) {
       const decode = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);

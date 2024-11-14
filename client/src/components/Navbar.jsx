@@ -11,7 +11,7 @@ import { BsDoorOpen } from "react-icons/bs";
 import { CiLogin } from "react-icons/ci";
 import { FaFileSignature } from "react-icons/fa";
 function Navbar() {
-  const { user } = useUserStore();
+  const { user, logout } = useUserStore();
   const isAdmin = user && user.role === "admin";
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
@@ -179,12 +179,6 @@ function Navbar() {
                           >
                             Settings
                           </motion.div>
-                          <motion.div
-                            className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white cursor-pointer"
-                            onClick={() => handleNavigate("/logout")}
-                          >
-                            Sign out
-                          </motion.div>
                         </div>
                       </motion.div>
                     )}
@@ -216,7 +210,7 @@ function Navbar() {
                 )}
                 {user && (
                   <motion.button
-                    onClick=""
+                    onClick={logout}
                     className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -291,12 +285,6 @@ function Navbar() {
                           onClick={() => handleNavigate("/settings")}
                         >
                           Settings
-                        </motion.div>
-                        <motion.div
-                          className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white cursor-pointer"
-                          onClick={() => handleNavigate("/logout")}
-                        >
-                          Sign out
                         </motion.div>
                       </div>
                     </motion.div>
@@ -398,7 +386,7 @@ function Navbar() {
                     <motion.button
                       variants={menuItemVariants}
                       transition={{ delay: (navItems.length + 1) * 0.1 }}
-                      onClick=""
+                      onClick={logout}
                       className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700"
                     >
                       <BsDoorOpen className="text-xl" />
