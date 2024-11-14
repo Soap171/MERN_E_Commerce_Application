@@ -8,8 +8,9 @@ import {
   resetPassword,
   google,
   refreshToken,
-  getProfile,
+  profile,
 } from "../controllers/auth.controller.js";
+import { protectedRoute } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
@@ -21,8 +22,6 @@ router.post("/verify-email", verifyEmail);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 router.post("/google-auth", google);
-
-// profile
-router.get("/profile", getProfile);
+router.get("/get-profile", protectedRoute, profile);
 
 export default router;

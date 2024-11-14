@@ -261,20 +261,23 @@ export const resetPassword = async (req, res, next) => {
     next(errorHandler(500, "Internal server error"));
   }
 };
+
 export const google = async (req, res, next) => {
   const { email, name, googlePhotoUrl } = req.body;
-  if (!email || !name)
+
+  if (!email || !name) {
     return next(errorHandler(400, "All fields are required"));
+  }
 
   try {
-    const user = User.findOne({ email });
+    const user = await User.findOne({ email }); // Corrected findOne syntax
 
     if (user) {
       const { refreshToken, accessToken } = generateTokens(user._id);
       await storeRefreshToken(user._id, refreshToken, next);
       setCookies(res, accessToken, refreshToken, next);
 
-      res.status(200).json({
+      return res.status(200).json({
         _id: user._id,
         name: user.name,
         email: user.email,
@@ -283,33 +286,45 @@ export const google = async (req, res, next) => {
       });
     } else {
       const token = createVerifyToken();
+      const randomPassword = Math.random().toString(36).slice(-8);
+      const hashedPassword = bcrypt.hashSync(randomPassword, 10);
 
-      const user = await User.create({
+      const newUser = await User.create({
         name,
         email,
-        password,
+        password: hashedPassword,
         verificationToken: token,
-        profilePicture: googlePhotoUrl,
+        profilePicture: googlePhotoUrl || "",
         verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
       });
 
-      const { accessToken, refreshToken } = generateTokens(user._id);
-      await storeRefreshToken(user._id, refreshToken, next);
+      const { accessToken, refreshToken } = generateTokens(newUser._id);
+      await storeRefreshToken(newUser._id, refreshToken, next);
       setCookies(res, accessToken, refreshToken, next);
       await sendVerificationEmail(email, token, next);
-      res.status(201).json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        isVerified: user.isVerified,
+
+      return res.status(201).json({
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        isVerified: newUser.isVerified,
       });
     }
+  } catch (error) {
+    console.log("Error in Google Auth:", error);
+    return next(errorHandler(500, "Internal server error"));
+  }
+};
+
+export const profile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id).select("-password");
+    if (!user) return next(errorHandler(404, "User not found"));
+
+    res.status(200).json(user);
   } catch (error) {
     console.log(error);
     next(errorHandler(500, "Internal server error"));
   }
 };
-
-// profile
-export const getProfile = async (req, res, next) => {};

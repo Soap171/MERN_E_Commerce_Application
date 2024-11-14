@@ -9,15 +9,26 @@ import Terms from "./pages/Terms";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import toast, { Toaster } from "react-hot-toast";
-
+import { useUserStore } from "./stores/useUserStore";
+import { useEffect } from "react";
+import LoadingSpinner from "./components/LoadingSpinner";
 function App() {
+  const { user, checkAuth, checkingAuth } = useUserStore();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  if (checkingAuth) {
+    return <LoadingSpinner />;
+  }
   return (
     <div className="bg-gradient-to-r from-slate-900 to-slate-700 min-h-screen flex flex-col ">
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/sign-up" element={!user ? <SignUp /> : <Home />} />
+          <Route path="/login" element={!user ? <Login /> : <Home />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />

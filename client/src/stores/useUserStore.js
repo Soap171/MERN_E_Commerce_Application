@@ -94,4 +94,41 @@ export const useUserStore = create((set, get) => ({
       toast.error(error.response.data.message);
     }
   },
+
+  googleAuth: async (email, name, googlePhotoUrl, navigate) => {
+    set({ loading: true });
+    try {
+      console.log(email, name, googlePhotoUrl);
+      const res = await axiosInstance.post("/auth/google-auth", {
+        email,
+        name,
+        googlePhotoUrl,
+      });
+      console.log("function called");
+      console.log(res);
+      set({ user: res.data, loading: false });
+
+      console.log(res.data);
+      toast.success("Successfully logged in with Google");
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
+    } catch (error) {
+      set({ loading: false });
+      console.log("Error:", error); // Log the full error
+      toast.error(error.response?.data?.message || "An error occurred");
+    }
+  },
+
+  checkAuth: async () => {
+    set({ checkingAuth: true });
+    try {
+      const res = await axiosInstance.get("/auth/get-profile");
+      set({ user: res.data, checkingAuth: false });
+      console.log(res.data, "user is here");
+    } catch (error) {
+      set({ user: null, checkingAuth: false });
+      console.log(error.response);
+    }
+  },
 }));
