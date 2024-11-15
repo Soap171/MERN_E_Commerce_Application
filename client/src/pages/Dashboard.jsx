@@ -1,4 +1,3 @@
-import React from "react";
 import { useState } from "react";
 import { IoIosCreate } from "react-icons/io";
 import { AiFillProduct } from "react-icons/ai";
@@ -8,9 +7,10 @@ import ProductsList from "../components/ProductsList";
 import AnalyticsTab from "../components/AnalyticsTab";
 import { motion } from "framer-motion";
 import { useUserStore } from "../stores/useUserStore";
-
+import { useProductStore } from "../stores/useProductStore";
 function Dashboard() {
   const { user } = useUserStore();
+
   const tabs = [
     { id: "create", label: "Create Product", icon: IoIosCreate },
     { id: "products", label: "Products", icon: AiFillProduct },

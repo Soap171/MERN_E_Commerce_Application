@@ -5,7 +5,7 @@ import { IoMdAddCircle } from "react-icons/io";
 import { FiLoader } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 import { useProductStore } from "../stores/useProductStore";
-import { set } from "mongoose";
+import imageCompression from "browser-image-compression";
 
 function CreateProductForm() {
   const { createProduct, loading } = useProductStore();
@@ -17,7 +17,6 @@ function CreateProductForm() {
     "trousers",
     "bags",
   ];
-
   const [newProduct, setNewProduct] = useState({
     name: "",
     description: "",
@@ -42,20 +41,34 @@ function CreateProductForm() {
     }
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const files = Array.from(e.target.files);
-    const imageUrls = files.map((file) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      return new Promise((resolve) => {
-        reader.onloadend = () => {
-          resolve(reader.result);
+    const compressedImages = await Promise.all(
+      files.map(async (file) => {
+        const options = {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 800,
+          useWebWorker: true,
         };
-      });
-    });
+        try {
+          const compressedFile = await imageCompression(file, options);
+          const reader = new FileReader();
+          reader.readAsDataURL(compressedFile);
+          return new Promise((resolve) => {
+            reader.onloadend = () => {
+              resolve(reader.result);
+            };
+          });
+        } catch (error) {
+          console.error("Error compressing image:", error);
+          return null;
+        }
+      })
+    );
 
-    Promise.all(imageUrls).then((urls) => {
-      setNewProduct({ ...newProduct, images: [...newProduct.images, ...urls] });
+    setNewProduct({
+      ...newProduct,
+      images: [...newProduct.images, ...compressedImages.filter(Boolean)],
     });
   };
 
@@ -85,25 +98,20 @@ function CreateProductForm() {
       toast.error("At least one product image is required");
       return false;
     }
-
     if (newProduct.images.length > 7) {
       toast.error("You can only upload a maximum of 7 images");
       return false;
     }
-
     if (!newProduct.quantity) {
       toast.error("Product quantity is required");
       return false;
     }
-
     if (newProduct.quantity <= 0) {
       toast.error("Product quantity must be greater than zero");
       return false;
     }
     return true;
   };
-
-  console.log(loading, "loading status");
 
   return (
     <motion.div
@@ -177,15 +185,15 @@ function CreateProductForm() {
 
         <div>
           <label
-            htmlFor="price"
+            htmlFor="quantity"
             className="block text-sm font-medium text-gray-300"
           >
             Quantity
           </label>
           <input
             type="number"
-            id="price"
-            name="price"
+            id="quantity"
+            name="quantity"
             value={newProduct.quantity}
             onChange={(e) =>
               setNewProduct({ ...newProduct, quantity: e.target.value })

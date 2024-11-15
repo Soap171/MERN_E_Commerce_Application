@@ -52,14 +52,26 @@ export const createProduct = async (req, res, next) => {
       return next(errorHandler(400, "Please provide at least one image"));
     }
 
-    const imageUrls = [];
+    // Compress and upload images concurrently
+    const imageUploadPromises = images.map(async (image) => {
+      const buffer = Buffer.from(image.split(",")[1], "base64");
+      const compressedBuffer = await sharp(buffer)
+        .resize(800) // Resize to a width of 800px, maintaining aspect ratio
+        .jpeg({ quality: 80 }) // Compress to JPEG with 80% quality
+        .toBuffer();
 
-    for (const image of images) {
-      const cloudinaryResponse = await cloudinary.uploader.upload(image, {
+      const compressedImage = `data:image/jpeg;base64,${compressedBuffer.toString(
+        "base64"
+      )}`;
+      return cloudinary.uploader.upload(compressedImage, {
         folder: "products",
       });
-      imageUrls.push(cloudinaryResponse.secure_url);
-    }
+    });
+
+    const cloudinaryResponses = await Promise.all(imageUploadPromises);
+    const imageUrls = cloudinaryResponses.map(
+      (response) => response.secure_url
+    );
 
     const product = new Product({
       name,
@@ -90,10 +102,12 @@ export const deleteProduct = async (req, res, next) => {
 
     if (product.images && product.images.length > 0) {
       try {
-        for (const image of product.images) {
+        // Use Promise.all to delete images concurrently
+        const imageDeletePromises = product.images.map((image) => {
           const publicId = image.split("/").pop().split(".")[0];
-          await cloudinary.uploader.destroy(publicId);
-        }
+          return cloudinary.uploader.destroy(publicId);
+        });
+        await Promise.all(imageDeletePromises);
       } catch (error) {
         console.log("Error Inside deleteProduct", error);
       }
@@ -145,7 +159,7 @@ export const getProductsByCategory = async (req, res, next) => {
 
 export const toggleFeatureProduct = async (req, res, next) => {
   try {
-    const { id } = req.params.id;
+    const { id } = req.params;
     if (!id) return next(errorHandler(400, "Product ID is required"));
 
     const product = await Product.findById(id);
@@ -162,6 +176,20 @@ export const toggleFeatureProduct = async (req, res, next) => {
   }
 };
 
+export const getProductById = async (req, res, next) => {
+  const { id } = req.params;
+  if (!id) return next(errorHandler(400, "Product ID is required"));
+
+  try {
+    const product = await Product.findById(id);
+    if (!product) return next(errorHandler(404, "Product Not Found"));
+
+    res.status(200).json(product);
+  } catch (error) {
+    console.log("Error Inside getProductById", error);
+    next;
+  }
+};
 async function updateFeaturedProductsCache() {
   try {
     const featuredProducts = await Product.find({ isFeatured: true }).lean();

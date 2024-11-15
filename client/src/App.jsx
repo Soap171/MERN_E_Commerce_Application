@@ -9,10 +9,12 @@ import Terms from "./pages/Terms";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import Dashboard from "./pages/Dashboard";
+import SingleProduct from "./pages/SingleProduct";
 import { Toaster } from "react-hot-toast";
 import { useUserStore } from "./stores/useUserStore";
 import { useEffect } from "react";
 import LoadingSpinner from "./components/LoadingSpinner";
+
 function App() {
   const { user, checkAuth, checkingAuth } = useUserStore();
 
@@ -40,6 +42,7 @@ function App() {
             path="/dashboard"
             element={user && user.role === "admin" ? <Dashboard /> : <Login />}
           />
+          <Route path="/products/:id" element={<SingleProduct />} />
         </Routes>
       </BrowserRouter>
       <Toaster />
