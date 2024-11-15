@@ -8,7 +8,8 @@ import ResetPassword from "./pages/ResetPassword";
 import Terms from "./pages/Terms";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
-import toast, { Toaster } from "react-hot-toast";
+import Dashboard from "./pages/Dashboard";
+import { Toaster } from "react-hot-toast";
 import { useUserStore } from "./stores/useUserStore";
 import { useEffect } from "react";
 import LoadingSpinner from "./components/LoadingSpinner";
@@ -35,6 +36,10 @@ function App() {
           <Route path="/terms-and-conditions" element={<Terms />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
+          <Route
+            path="/dashboard"
+            element={user && user.role === "admin" ? <Dashboard /> : <Login />}
+          />
         </Routes>
       </BrowserRouter>
       <Toaster />

@@ -18,9 +18,16 @@ const productSchema = new mongoose.Schema(
       min: 0,
     },
 
-    image: {
-      type: String,
-      required: ["true", "Please select an image"],
+    images: {
+      type: [String],
+      required: true,
+      validate: {
+        validator: function (v) {
+          return v.length > 0;
+        },
+        message: "Please select at least one image",
+      },
+      max: [7, "You can only upload a maximum  of 7 images"],
     },
 
     category: {
@@ -31,6 +38,12 @@ const productSchema = new mongoose.Schema(
     isFeatured: {
       type: Boolean,
       default: false,
+    },
+
+    quantity: {
+      type: Number,
+      required: true,
+      min: 0,
     },
   },
   { timestamps: true }

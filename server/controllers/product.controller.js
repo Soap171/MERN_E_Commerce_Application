@@ -43,25 +43,31 @@ export const getFreaturedProducts = async (req, res, next) => {
 
 export const createProduct = async (req, res, next) => {
   try {
-    const { name, description, price, image, category } = req.body;
-    if (!name || !description || !price || !image || !category) {
+    const { name, description, price, images, category, quantity } = req.body;
+    if (!name || !description || !price || !images || !category || !quantity) {
       return next(errorHandler(400, "Please fill all fields"));
     }
 
-    let cloudinaryResponse = null;
+    if (!Array.isArray(images) || images.length === 0) {
+      return next(errorHandler(400, "Please provide at least one image"));
+    }
 
-    if (image) {
-      cloudinaryResponse = await cloudinary.uploader.upload(image, {
-        folder: "prodcuts",
+    const imageUrls = [];
+
+    for (const image of images) {
+      const cloudinaryResponse = await cloudinary.uploader.upload(image, {
+        folder: "products",
       });
+      imageUrls.push(cloudinaryResponse.secure_url);
     }
 
     const product = new Product({
       name,
       description,
       price,
-      image: cloudinaryResponse.secure_url ? cloudinaryResponse.secure_url : "",
+      images: imageUrls,
       category,
+      quantity,
     });
 
     await product.save();
@@ -75,23 +81,25 @@ export const createProduct = async (req, res, next) => {
 
 export const deleteProduct = async (req, res, next) => {
   try {
-    const { id } = req.params.id;
+    const { id } = req.params;
     if (!id) return next(errorHandler(400, "Product ID is required"));
 
     const product = await Product.findById(id);
 
     if (!product) return next(errorHandler(404, "Product Not Found"));
 
-    if (product.image) {
+    if (product.images && product.images.length > 0) {
       try {
-        const publicId = product.image.split("/").pop().split(".")[0];
-        await cloudinary.uploader.destroy(publicId);
+        for (const image of product.images) {
+          const publicId = image.split("/").pop().split(".")[0];
+          await cloudinary.uploader.destroy(publicId);
+        }
       } catch (error) {
         console.log("Error Inside deleteProduct", error);
       }
     }
 
-    await product.findByIdAndDelete(id);
+    await Product.findByIdAndDelete(id);
     res.status(200).json({ message: "Product Deleted Successfully" });
   } catch (error) {
     console.log("Error Inside deleteProduct", error);
