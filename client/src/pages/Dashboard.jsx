@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { IoIosCreate } from "react-icons/io";
 import { AiFillProduct } from "react-icons/ai";
 import { IoMdAnalytics } from "react-icons/io";
@@ -7,17 +7,39 @@ import ProductsList from "../components/ProductsList";
 import AnalyticsTab from "../components/AnalyticsTab";
 import { motion } from "framer-motion";
 import { useUserStore } from "../stores/useUserStore";
-import { useProductStore } from "../stores/useProductStore";
+import { useNavigate, Route, Routes } from "react-router-dom";
+
 function Dashboard() {
   const { user } = useUserStore();
+  const navigate = useNavigate();
 
   const tabs = [
-    { id: "create", label: "Create Product", icon: IoIosCreate },
-    { id: "products", label: "Products", icon: AiFillProduct },
-    { id: "analytics", label: "Analytics", icon: IoMdAnalytics },
+    {
+      id: "create",
+      label: "Create Product",
+      icon: IoIosCreate,
+      path: "/dashboard/create",
+    },
+    {
+      id: "products",
+      label: "Products",
+      icon: AiFillProduct,
+      path: "/dashboard/products",
+    },
+    {
+      id: "analytics",
+      label: "Analytics",
+      icon: IoMdAnalytics,
+      path: "/dashboard/analytics",
+    },
   ];
 
-  const [activeTab, setActiveTab] = useState("create");
+  const [activeTab, setActiveTab] = useState("products");
+
+  const handleTabClick = (tab) => {
+    setActiveTab(tab.id);
+    navigate(tab.path);
+  };
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -35,7 +57,7 @@ function Dashboard() {
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => handleTabClick(tab)}
               className={`flex items-center px-4 py-2 mx-2 rounded-md transition-colors duration-200 ${
                 activeTab === tab.id
                   ? "bg-emerald-600 text-white"
@@ -47,9 +69,13 @@ function Dashboard() {
             </button>
           ))}
         </div>
-        {activeTab === "create" && <CreateProductForm />}
-        {activeTab === "products" && <ProductsList />}
-        {activeTab === "analytics" && <AnalyticsTab />}
+
+        <Routes>
+          <Route path="create" element={<CreateProductForm />} />
+          <Route path="products" element={<ProductsList />} />
+          <Route path="analytics" element={<AnalyticsTab />} />
+          <Route path="edit/:id" element={<CreateProductForm />} />
+        </Routes>
       </div>
     </div>
   );

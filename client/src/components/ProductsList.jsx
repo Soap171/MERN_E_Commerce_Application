@@ -1,52 +1,34 @@
-import React, { useEffect } from "react";
-import { FaTrashAlt } from "react-icons/fa";
-import { FaRegStar } from "react-icons/fa";
-import { useProductStore } from "../stores/useProductStore";
-import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useProductStore } from "../stores/useProductStore";
+import { useEffect } from "react";
 
 function ProductsList() {
   const {
     products,
-    deleteProduct,
-    toggleFeaturedProduct,
     fetchAllProducts,
     loading,
+    toggleFeaturedProduct,
+    deleteProduct,
   } = useProductStore();
-
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchAllProducts();
   }, [fetchAllProducts]);
-
-  const handleProductClick = (id) => {
-    navigate(`/products/${id}`);
+  const handleEditClick = (id) => {
+    navigate(`/dashboard/edit/${id}`);
   };
 
-  console.log(products);
-
   return (
-    <motion.div
-      className="bg-gray-800 shadow-lg rounded-lg overflow-hidden max-w-4xl mx-auto"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
-    >
-      <table className=" min-w-full divide-y divide-gray-700">
-        <thead className="bg-gray-700">
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-gray-700">
+        <thead>
           <tr>
             <th
               scope="col"
               className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
             >
-              Product
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
-            >
-              Price
+              Name
             </th>
             <th
               scope="col"
@@ -60,7 +42,6 @@ function ProductsList() {
             >
               In Stock
             </th>
-
             <th
               scope="col"
               className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider"
@@ -75,77 +56,46 @@ function ProductsList() {
             </th>
           </tr>
         </thead>
-
         <tbody className="bg-gray-800 divide-y divide-gray-700">
-          {products?.map((product) => (
-            <tr
-              key={product._id}
-              className="hover:bg-gray-700"
-              onClick={() => handleProductClick(product._id)}
-            >
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0 h-10 w-10">
-                    <img
-                      className="h-10 w-10 rounded-full object-cover"
-                      src={
-                        product.images && product.images.length > 0
-                          ? product.images[0]
-                          : "fallback-image-url.jpg"
-                      }
-                      alt={product.name}
-                    />
-                  </div>
-                  <div className="ml-4">
-                    <div className="text-sm font-medium text-white">
-                      {product.name}
-                    </div>
-                  </div>
-                </div>
+          {products.map((product) => (
+            <tr key={product.id}>
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-300">
+                {product.name}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-300">
-                  ${product.price?.toFixed(2)}
-                </div>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                {product.category}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-300">{product.category}</div>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                {product.quantity}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-300">{product.quantity}</div>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                {product.featured ? "Yes" : "No"}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleFeaturedProduct(product._id);
-                  }}
-                  className={`p-1 rounded-full ${
-                    product.isFeatured
-                      ? "bg-yellow-400 text-gray-900"
-                      : "bg-gray-600 text-gray-300"
-                  } hover:bg-yellow-500 transition-colors duration-200`}
+                  onClick={() => handleEditClick(product._id)}
+                  className="text-indigo-600 hover:text-indigo-900"
                 >
-                  <FaRegStar className="h-5 w-5" />
+                  Edit
                 </button>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <button
-                  disabled={loading}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    deleteProduct(product._id);
-                  }}
-                  className="text-red-400 hover:text-red-300"
+                  onClick={() => toggleFeaturedProduct(product._id)}
+                  className="text-indigo-600 hover:text-indigo-900"
                 >
-                  <FaTrashAlt className="h-5 w-5" />
+                  Featured
+                </button>
+                <button
+                  onClick={() => deleteProduct(product._id)}
+                  className="text-indigo-600 hover:text-indigo-900"
+                >
+                  Delete
                 </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-    </motion.div>
+    </div>
   );
 }
 

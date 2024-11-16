@@ -199,7 +199,7 @@ function Navbar() {
                 {/* Dashboard Button */}
                 {isAdmin && (
                   <motion.button
-                    onClick={() => handleNavigate("/dashboard")}
+                    onClick={() => handleNavigate("/dashboard/products")}
                     className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -374,7 +374,7 @@ function Navbar() {
                       variants={menuItemVariants}
                       transition={{ delay: (navItems.length + 1) * 0.1 }}
                       className="cursor-pointer"
-                      onClick={() => handleNavigate("/dashboard")}
+                      onClick={() => handleNavigate("/dashboard/products")}
                     >
                       <span className=" px-3 py-2 rounded-md text-base font-medium text-white bg-green-600 hover:bg-green-700">
                         Dashboard

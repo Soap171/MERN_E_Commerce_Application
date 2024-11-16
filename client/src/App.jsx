@@ -39,7 +39,7 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route
-            path="/dashboard"
+            path="/dashboard/*"
             element={user && user.role === "admin" ? <Dashboard /> : <Login />}
           />
           <Route path="/products/:id" element={<SingleProduct />} />

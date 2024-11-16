@@ -1,14 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FaCloudUploadAlt, FaTrashAlt } from "react-icons/fa";
 import { IoMdAddCircle } from "react-icons/io";
 import { FiLoader } from "react-icons/fi";
 import { toast } from "react-hot-toast";
+import { useParams, useNavigate } from "react-router-dom";
 import { useProductStore } from "../stores/useProductStore";
 import imageCompression from "browser-image-compression";
 
 function CreateProductForm() {
-  const { createProduct, loading } = useProductStore();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { createProduct, updateProduct, fetchProductById, product, loading } =
+    useProductStore();
   const categories = [
     "shoes",
     "t-shirts",
@@ -17,7 +21,7 @@ function CreateProductForm() {
     "trousers",
     "bags",
   ];
-  const [newProduct, setNewProduct] = useState({
+  const [formData, setFormData] = useState({
     name: "",
     description: "",
     price: "",
@@ -26,22 +30,31 @@ function CreateProductForm() {
     quantity: 0,
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (validateForm()) {
-      await createProduct(newProduct);
-      setNewProduct({
-        name: "",
-        description: "",
-        price: "",
-        category: "",
-        images: [],
-        quantity: 0,
+  useEffect(() => {
+    if (id) {
+      fetchProductById(id);
+    }
+  }, [id, fetchProductById]);
+
+  useEffect(() => {
+    if (product && id) {
+      setFormData({
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        images: product.images,
+        category: product.category,
+        quantity: product.quantity,
       });
     }
+  }, [product, id]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  const handleImageChange = async (e) => {
+  const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
     const compressedImages = await Promise.all(
       files.map(async (file) => {
@@ -66,51 +79,63 @@ function CreateProductForm() {
       })
     );
 
-    setNewProduct({
-      ...newProduct,
-      images: [...newProduct.images, ...compressedImages.filter(Boolean)],
+    setFormData({
+      ...formData,
+      images: [...formData.images, ...compressedImages.filter(Boolean)],
     });
   };
 
   const handleRemoveImage = (index) => {
-    const updatedImages = newProduct.images.filter((_, i) => i !== index);
-    setNewProduct({ ...newProduct, images: updatedImages });
+    const updatedImages = formData.images.filter((_, i) => i !== index);
+    setFormData({ ...formData, images: updatedImages });
   };
 
   const validateForm = () => {
-    if (!newProduct.name) {
+    if (!formData.name) {
       toast.error("Product name is required");
       return false;
     }
-    if (!newProduct.description) {
+    if (!formData.description) {
       toast.error("Product description is required");
       return false;
     }
-    if (!newProduct.price || newProduct.price <= 0) {
+    if (!formData.price || formData.price <= 0) {
       toast.error("Product price must be greater than zero");
       return false;
     }
-    if (!newProduct.category) {
+    if (!formData.category) {
       toast.error("Product category is required");
       return false;
     }
-    if (newProduct.images.length === 0) {
+    if (formData.images.length === 0) {
       toast.error("At least one product image is required");
       return false;
     }
-    if (newProduct.images.length > 7) {
+    if (formData.images.length > 7) {
       toast.error("You can only upload a maximum of 7 images");
       return false;
     }
-    if (!newProduct.quantity) {
+    if (!formData.quantity) {
       toast.error("Product quantity is required");
       return false;
     }
-    if (newProduct.quantity <= 0) {
+    if (formData.quantity <= 0) {
       toast.error("Product quantity must be greater than zero");
       return false;
     }
     return true;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (validateForm()) {
+      if (id) {
+        await updateProduct(id, formData);
+      } else {
+        await createProduct(formData);
+      }
+      navigate("/dashboard/products");
+    }
   };
 
   return (
@@ -121,7 +146,7 @@ function CreateProductForm() {
       transition={{ duration: 0.8 }}
     >
       <h2 className="text-2xl font-semibold mb-6 text-center text-emerald-300">
-        Create New Product
+        {id ? "Update Product" : "Create New Product"}
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -136,10 +161,8 @@ function CreateProductForm() {
             type="text"
             id="name"
             name="name"
-            value={newProduct.name}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, name: e.target.value })
-            }
+            value={formData.name}
+            onChange={handleChange}
             className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
           />
         </div>
@@ -154,10 +177,8 @@ function CreateProductForm() {
           <textarea
             id="description"
             name="description"
-            value={newProduct.description}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, description: e.target.value })
-            }
+            value={formData.description}
+            onChange={handleChange}
             rows="3"
             className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
           />
@@ -174,10 +195,8 @@ function CreateProductForm() {
             type="number"
             id="price"
             name="price"
-            value={newProduct.price}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, price: e.target.value })
-            }
+            value={formData.price}
+            onChange={handleChange}
             step="0.01"
             className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
           />
@@ -194,10 +213,8 @@ function CreateProductForm() {
             type="number"
             id="quantity"
             name="quantity"
-            value={newProduct.quantity}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, quantity: e.target.value })
-            }
+            value={formData.quantity}
+            onChange={handleChange}
             step="1"
             min="0"
             className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
@@ -214,10 +231,8 @@ function CreateProductForm() {
           <select
             id="category"
             name="category"
-            value={newProduct.category}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, category: e.target.value })
-            }
+            value={formData.category}
+            onChange={handleChange}
             className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
           >
             <option value="">Select a category</option>
@@ -236,7 +251,7 @@ function CreateProductForm() {
             className="sr-only"
             accept="image/*"
             multiple
-            onChange={handleImageChange}
+            onChange={handleFileChange}
           />
           <label
             htmlFor="images"
@@ -245,16 +260,16 @@ function CreateProductForm() {
             <FaCloudUploadAlt className="h-5 w-5 inline-block mr-2" />
             Upload Images
           </label>
-          {newProduct.images.length > 0 && (
+          {formData.images.length > 0 && (
             <span className="ml-3 text-sm text-gray-400">
-              {newProduct.images.length} images uploaded
+              {formData.images.length} images uploaded
             </span>
           )}
         </div>
 
-        {newProduct.images.length > 0 && (
+        {formData.images.length > 0 && (
           <div className="mt-4 grid grid-cols-2 gap-4">
-            {newProduct.images.map((image, index) => (
+            {formData.images.map((image, index) => (
               <div key={index} className="relative">
                 <img
                   src={image}
@@ -289,7 +304,7 @@ function CreateProductForm() {
           ) : (
             <>
               <IoMdAddCircle className="mr-2 h-5 w-5" />
-              Create Product
+              {id ? "Update Product" : "Create Product"}
             </>
           )}
         </button>

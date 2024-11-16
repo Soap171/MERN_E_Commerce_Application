@@ -2,6 +2,7 @@ import { errorHandler } from "../utils/errorHandler.js";
 import Product from "../models/product.model.js";
 import { redis } from "../lib/redis.js";
 import cloudinary from "../lib/cloudinary.js";
+import sharp from "sharp";
 
 export const getAllProducts = async (req, res, next) => {
   try {
@@ -208,8 +209,19 @@ export const updateProduct = async (req, res, next) => {
 
     // If new images are provided, compress and upload them
     if (images && Array.isArray(images) && images.length > 0) {
-      const imageUploadPromises = images.map(async (image) => {
-        const buffer = Buffer.from(image.split(",")[1], "base64");
+      const newImages = images.filter((image) =>
+        image.startsWith("data:image")
+      );
+      const existingImages = images.filter(
+        (image) => !image.startsWith("data:image")
+      );
+
+      const imageUploadPromises = newImages.map(async (image) => {
+        const base64Data = image.split(",")[1];
+        if (!base64Data) {
+          throw new Error("Invalid image format");
+        }
+        const buffer = Buffer.from(base64Data, "base64");
         const compressedBuffer = await sharp(buffer)
           .resize(800) // Resize to a width of 800px, maintaining aspect ratio
           .jpeg({ quality: 80 }) // Compress to JPEG with 80% quality
@@ -229,7 +241,7 @@ export const updateProduct = async (req, res, next) => {
       );
 
       // Combine old and new image URLs
-      imageUrls = [...imageUrls, ...newImageUrls];
+      imageUrls = [...existingImages, ...newImageUrls];
     }
 
     // Update product details
