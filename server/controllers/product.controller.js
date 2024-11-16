@@ -190,6 +190,65 @@ export const getProductById = async (req, res, next) => {
     next;
   }
 };
+
+export const updateProduct = async (req, res, next) => {
+  const { id } = req.params;
+  const { name, description, price, images, category, quantity } = req.body;
+
+  if (!id) return next(errorHandler(400, "Product ID is required"));
+  if (!name || !description || !price || !category || !quantity) {
+    return next(errorHandler(400, "Please fill all fields"));
+  }
+
+  try {
+    const product = await Product.findById(id);
+    if (!product) return next(errorHandler(404, "Product Not Found"));
+
+    let imageUrls = product.images;
+
+    // If new images are provided, compress and upload them
+    if (images && Array.isArray(images) && images.length > 0) {
+      const imageUploadPromises = images.map(async (image) => {
+        const buffer = Buffer.from(image.split(",")[1], "base64");
+        const compressedBuffer = await sharp(buffer)
+          .resize(800) // Resize to a width of 800px, maintaining aspect ratio
+          .jpeg({ quality: 80 }) // Compress to JPEG with 80% quality
+          .toBuffer();
+
+        const compressedImage = `data:image/jpeg;base64,${compressedBuffer.toString(
+          "base64"
+        )}`;
+        return cloudinary.uploader.upload(compressedImage, {
+          folder: "products",
+        });
+      });
+
+      const cloudinaryResponses = await Promise.all(imageUploadPromises);
+      const newImageUrls = cloudinaryResponses.map(
+        (response) => response.secure_url
+      );
+
+      // Combine old and new image URLs
+      imageUrls = [...imageUrls, ...newImageUrls];
+    }
+
+    // Update product details
+    product.name = name;
+    product.description = description;
+    product.price = price;
+    product.images = imageUrls;
+    product.category = category;
+    product.quantity = quantity;
+
+    await product.save();
+
+    res.status(200).json({ product });
+  } catch (error) {
+    console.log("Error Inside updateProduct", error);
+    next(error);
+  }
+};
+
 async function updateFeaturedProductsCache() {
   try {
     const featuredProducts = await Product.find({ isFeatured: true }).lean();
