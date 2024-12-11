@@ -8,10 +8,14 @@ import ResetPassword from "./pages/ResetPassword";
 import Terms from "./pages/Terms";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 import { useUserStore } from "./stores/useUserStore";
 import { useEffect } from "react";
 import LoadingSpinner from "./components/LoadingSpinner";
+import AdminDashboard from "./pages/AdminDashboard";
+import ProductForm from "./pages/ProductForm";
+import ProductsView from "./pages/ProductsView";
+import Analytics from "./pages/Analytics";
 function App() {
   const { user, checkAuth, checkingAuth } = useUserStore();
 
@@ -35,6 +39,25 @@ function App() {
           <Route path="/terms-and-conditions" element={<Terms />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
+          <Route
+            path="/dashboard"
+            element={user?.role === "admin" ? <AdminDashboard /> : <Home />}
+          />
+
+          <Route
+            path="/dashboard/product/:id?"
+            element={user?.role === "admin" ? <ProductForm /> : <Home />}
+          />
+
+          <Route
+            path="/dashboard/products"
+            element={user?.role === "admin" ? <ProductsView /> : <Home />}
+          />
+
+          <Route
+            path="/dashboard/analytics"
+            element={user?.role === "admin" ? <Analytics /> : <Home />}
+          />
         </Routes>
       </BrowserRouter>
       <Toaster />
