@@ -93,9 +93,15 @@ function ProductForm() {
         images: formData.images,
         category: formData.category,
       };
-
-      console.log(productData); // Replace this with your API call to submit the form data
       createProduct(productData);
+
+      setFormData({
+        name: "",
+        description: "",
+        price: "",
+        images: [],
+        category: "",
+      });
     }
   };
 
@@ -236,8 +242,19 @@ function ProductForm() {
             <button
               type="submit"
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50"
+              disabled={loading}
             >
-              Submit
+              {loading ? (
+                <>
+                  <FiLoader className="animate-spin inline-block mr-2" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <IoMdAddCircle className="h-5 w-5 inline-block mr-2" />
+                  Add Product
+                </>
+              )}
             </button>
           </form>
         </motion.div>
