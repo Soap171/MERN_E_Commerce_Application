@@ -11,7 +11,8 @@ export const useProductStore = create((set) => ({
     try {
       set({ loading: true });
 
-      const { name, description, price, category, images } = productData;
+      const { name, description, price, category, images, quantity } =
+        productData;
 
       const response = await axiosInstance.post("/products", {
         name,
@@ -19,6 +20,7 @@ export const useProductStore = create((set) => ({
         price,
         category,
         images,
+        quantity,
       });
 
       set((state) => ({

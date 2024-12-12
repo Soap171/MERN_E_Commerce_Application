@@ -32,6 +32,13 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 1000,
+    },
   },
   { timestamps: true }
 );

@@ -23,6 +23,7 @@ function ProductForm() {
     price: "",
     images: [],
     category: "",
+    quantity: "",
   });
   const { loading, createProduct } = useProductStore();
 
@@ -92,8 +93,10 @@ function ProductForm() {
         price: formData.price,
         images: formData.images,
         category: formData.category,
+        quantity: formData.quantity,
       };
       createProduct(productData);
+      console.log("Product Data:", productData);
 
       setFormData({
         name: "",
@@ -101,6 +104,7 @@ function ProductForm() {
         price: "",
         images: [],
         category: "",
+        quantity: "",
       });
     }
   };
@@ -168,6 +172,25 @@ function ProductForm() {
                 value={formData.price}
                 onChange={handleChange}
                 step="0.01"
+                className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="quantity"
+                className="block text-sm font-medium text-gray-300"
+              >
+                Quantity
+              </label>
+              <input
+                type="number"
+                id="quantity"
+                name="quantity"
+                value={formData.quantity}
+                onChange={handleChange}
+                step="1"
+                min={1}
                 className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               />
             </div>

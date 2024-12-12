@@ -43,8 +43,8 @@ export const getFreaturedProducts = async (req, res, next) => {
 
 export const createProduct = async (req, res, next) => {
   try {
-    const { name, description, price, images, category } = req.body;
-    if (!name || !description || !price || !images || !category) {
+    const { name, description, price, images, category, quantity } = req.body;
+    if (!name || !description || !price || !images || !category || !quantity) {
       return next(errorHandler(400, "Please fill all fields"));
     }
 
@@ -68,6 +68,7 @@ export const createProduct = async (req, res, next) => {
       price,
       images: imageUrls,
       category,
+      quantity,
     });
 
     await product.save();
