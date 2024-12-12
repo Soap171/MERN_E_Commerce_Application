@@ -43,24 +43,30 @@ export const getFreaturedProducts = async (req, res, next) => {
 
 export const createProduct = async (req, res, next) => {
   try {
-    const { name, description, price, image, category } = req.body;
-    if (!name || !description || !price || !image || !category) {
+    const { name, description, price, images, category } = req.body;
+    if (!name || !description || !price || !images || !category) {
       return next(errorHandler(400, "Please fill all fields"));
     }
 
-    let cloudinaryResponse = null;
-
-    if (image) {
-      cloudinaryResponse = await cloudinary.uploader.upload(image, {
-        folder: "prodcuts",
-      });
+    if (!Array.isArray(images) || images.length === 0) {
+      return next(errorHandler(400, "Please provide at least one image"));
     }
+
+    // Upload images to Cloudinary
+    const imageUploadPromises = images.map(async (image) => {
+      const cloudinaryResponse = await cloudinary.uploader.upload(image, {
+        folder: "products",
+      });
+      return cloudinaryResponse.secure_url;
+    });
+
+    const imageUrls = await Promise.all(imageUploadPromises);
 
     const product = new Product({
       name,
       description,
       price,
-      image: cloudinaryResponse.secure_url ? cloudinaryResponse.secure_url : "",
+      images: imageUrls,
       category,
     });
 
